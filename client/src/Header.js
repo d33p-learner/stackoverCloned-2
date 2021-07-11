@@ -52,8 +52,10 @@ const SearchInput = styled.input`
 
 const ProfileLink = styled(Link)`
   color: #fff;
+  padding: 0 20px;
   text-decoration: none;
   line-height: 50px;
+  text-align: right;
 `;
 
 function Header() {
@@ -71,14 +73,19 @@ function Header() {
           <SearchInput type="text" placeholder="Search..." />
         </form>
         {user && (
-          <ProfileLink to={'/profile'} className="profile">
+          <ProfileLink to={"/profile"} className="profile">
             {user.email}
           </ProfileLink>
         )}
         {!user && (
-          <ProfileLink to={'/login'} className="profile">
-            Log In
-          </ProfileLink>
+          <div>
+            <ProfileLink to={"/login"} className="profile">
+              Log In
+            </ProfileLink>
+            <ProfileLink to={"/register"} className="profile">
+              Register
+            </ProfileLink>
+          </div>
         )}
       </StyledHeader>
     </div>
