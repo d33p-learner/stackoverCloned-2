@@ -5,8 +5,10 @@ import BlueButton from "./BlueButton";
 import Input from "./Input";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
+import ReactTags from "react-tag-autocomplete";
 
 const Container = styled.div`
   padding: 30px 20px;
@@ -34,8 +36,13 @@ const PreviewArea = styled.div`
 `;
 
 function AskPage() {
+  const reactTags = React.createRef();
+
   const [questionTitle, setQuestionTitle] = useState("");
   const [questionBody, setQuestionBody] = useState("");
+  const [redirect, setRedirect] = useState("");
+  const [tags, setTags] = useState([]);
+  const [tagSuggestions, setTagSuggestions] = useState([]);
 
   function sendQuestion(ev) {
     ev.preventDefault();
@@ -45,17 +52,45 @@ function AskPage() {
         {
           title: questionTitle,
           content: questionBody,
+          tagIds: tags.map((tag) => tag.id),
         },
         { withCredentials: true }
       )
       .then((response) => {
-        console.log(response.data);
-        // setRedirect("/questions/" + response.data[0]);
+        console.log(response);
+        setRedirect("/questions/" + response.data.postId);
       });
   }
 
+  function getTags() {
+    axios.get("http://localhost:3030/tags").then((response) => {
+      setTagSuggestions(response.data);
+    });
+  }
+
+  function onTagAddition(tag) {
+    const chosenTags = tags;
+    chosenTags.push(tag);
+    setTags(chosenTags);
+  }
+
+  function onTagDelete(indexToDelete) {
+    const newTags = [];
+    for (let i = 0; i < tags.length; i++) {
+      if (i !== indexToDelete) {
+        newTags.push(tags[i]);
+      }
+    }
+    setTags(newTags);
+  }
+
+  useEffect(() => {
+    getTags();
+  }, []);
+
   return (
     <Container>
+      {redirect && <Redirect to={redirect} />}
       <Lower_header style={{ marginBottom: "20px" }}>
         Ask a public question
       </Lower_header>
@@ -74,6 +109,13 @@ function AskPage() {
         <PreviewArea>
           <ReactMarkdown remarkPlugins={[gfm]} children={questionBody} />
         </PreviewArea>
+        <ReactTags
+          ref={reactTags}
+          tags={tags}
+          suggestions={tagSuggestions}
+          onDelete={(ev) => onTagDelete(ev)}
+          onAddition={(ev) => onTagAddition(ev)}
+        />
         <BlueButton type={"submit"}>Review your question</BlueButton>
       </form>
     </Container>

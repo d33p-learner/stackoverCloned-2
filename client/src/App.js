@@ -10,6 +10,8 @@ import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import axios from "axios";
 import ProfilePage from "./ProfilePage";
+import QuestionPage from "./QuestionPage";
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -56,6 +58,7 @@ function App() {
             <Route path="/login" component={LoginPage} />
             <Route path="/register" component={RegisterPage} />
             <Route path="/profile" component={ProfilePage} />
+            <Route path="/questions/:id" component={QuestionPage} />
             <Route path="/" component={QuestionsPage} />
           </Switch>
         </UserContext.Provider>

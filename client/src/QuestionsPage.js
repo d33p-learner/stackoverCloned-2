@@ -2,8 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import QuestionRow from "./QuestionRow";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Lower_header from "./Lower_header";
 import BlueButtonLink from "./BlueButtonLink";
+import axios from "axios";
 
 const HeaderRow = styled.div`
   display: grid;
@@ -12,18 +14,29 @@ const HeaderRow = styled.div`
 `;
 
 function QuestionsPage() {
+  const [questions, setQuestions] = useState([]);
+
+  function fetchQuestion() {
+    axios
+      .get("http://localhost:3030/questions", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setQuestions(response.data);
+      });
+  }
+
+  useEffect(() => fetchQuestion(), []);
+
   return (
     <main>
       <HeaderRow>
-        <Lower_header style={{margin:0}}>Top Questions</Lower_header>
+        <Lower_header style={{ margin: 0 }}>Questions</Lower_header>
         <BlueButtonLink to="/ask">Ask&nbsp;Questions</BlueButtonLink>
       </HeaderRow>
-      <QuestionRow />
-      <QuestionRow />
-      <QuestionRow />
-      <QuestionRow />
-      <QuestionRow />
-      <QuestionRow />
+      {questions &&
+        questions.length > 0 &&
+        questions.map((question) => <QuestionRow title={question.title} postId={question.postId} />)}
     </main>
   );
 }

@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import UserRoutes from "./UserRoutes.js";
 import QuestionRoutes from "./QuestionRoutes.js";
+import TagRoutes from "./TagRoutes.js";
 
 
 const app = express();
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 
 app.use(UserRoutes);
 app.use(QuestionRoutes);
+app.use(TagRoutes);
 
 
 app.listen(port, () => {

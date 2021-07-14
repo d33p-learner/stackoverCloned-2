@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 const QuestionStat = styled.div`
   text-align: center;
@@ -29,7 +31,7 @@ const Tag = styled.span`
   font-size: 0.9rem;
 `;
 
-const QuestionLink = styled.a`
+const QuestionLink = styled(Link)`
   text-decoration: none;
   color: #3ca4ff;
   font-size: 1.1rem;
@@ -57,7 +59,7 @@ const UserLink = styled.a`
     color:#3ca4ff;
 `;
 
-function QuestionRow() {
+function QuestionRow({title, postId}) {
   return (
     <StyledQuestionRow>
       <QuestionStat>
@@ -70,7 +72,7 @@ function QuestionRow() {
         8<span>Views</span>
       </QuestionStat>
       <QuestionTitleArea>
-        <QuestionLink>Some random question on stackoverflow</QuestionLink>
+        <QuestionLink to={'/questions/'+postId}>{title}</QuestionLink>
         <WhoandWhen>
             asked 2 mins ago <UserLink>Dawid</UserLink>
         </WhoandWhen>
@@ -82,5 +84,14 @@ function QuestionRow() {
     </StyledQuestionRow>
   );
 }
+
+QuestionRow.propTypes = {
+  // createdAt: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  postId: PropTypes.string.isRequired,
+  // tags: PropTypes.string,
+  // author: PropTypes.object,
+};
+
 
 export default QuestionRow;

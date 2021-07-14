@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
 
 const saltRounds = 10;
 
@@ -15,10 +16,10 @@ mongoose.connect("mongodb://localhost:27017/usersInfoDB", {
   useCreateIndex: true,
 });
 mongoose.set("useCreateIndex", true);
-mongoose.set('useFindAndModify', false);
+mongoose.set("useFindAndModify", false);
 
 const userSchema = new mongoose.Schema({
-  key:Number,
+  userId: String,
   email: String,
   password: String,
   token: String,
@@ -30,9 +31,10 @@ UserRoutes.get("/profile", (req, res) => {
   const token = req.cookies.token;
   jwt.verify(token, secret, (err, data) => {
     if (err) {
+      console.log(err);
       res.status(403).send();
     } else {
-      res.json(data).send();
+      res.json(data);
     }
   });
 });
@@ -88,7 +90,7 @@ UserRoutes.post("/register", (req, res) => {
       if (!foundUser) {
         bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
           const newUser = new User({
-            ////key:
+            userId: uuidv4(),
             email: req.body.email,
             password: hash,
           });

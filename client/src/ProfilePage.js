@@ -14,7 +14,6 @@ const Container = styled.div`
 `;
 
 class ProfilePage extends Component {
-    
   constructor(props) {
     super(props);
     this.state = {
@@ -24,11 +23,11 @@ class ProfilePage extends Component {
     };
   }
 
-//   componentDidMount() {
-//     this.setState({
-//       username: this.context.user ? this.context.user.name : "",
-//     });
-//   }
+  //   componentDidMount() {
+  //     this.setState({
+  //       username: this.context.user ? this.context.user.name : "",
+  //     });
+  //   }
 
   logout() {
     axios
