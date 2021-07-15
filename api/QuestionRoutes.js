@@ -4,7 +4,7 @@ import db from "./db.js";
 const QuestionRoutes = express.Router();
 
 QuestionRoutes.post("/questions", (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, tags } = req.body;
   const { token } = req.cookies;
   db.select("id")
     .from("users")
@@ -19,10 +19,18 @@ QuestionRoutes.post("/questions", (req, res) => {
             parent_id: null,
             author_id: user.id,
           })
-          .then((post) => {
-            res.json(post);
+          .then((questionId) => {
+
+            const questionTags = [];
+            tags.forEach((tag) => {
+              questionTags.push({ question_id: questionId, tag_id: tag });
+            });
+            db("question_tags")
+              .insert(questionTags)
+              .then(() => res.json(questionId).sendStatus(201))
+              .catch((e) => res.sendStatus(422));
           })
-          .catch(() => res.sendStatus(422));
+          .catch((e) =>  res.sendStatus(422));
       } else {
         res.sendStatus(403);
       }
