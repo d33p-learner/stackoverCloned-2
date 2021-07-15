@@ -52,18 +52,19 @@ function AskPage() {
         {
           title: questionTitle,
           content: questionBody,
-          tagIds: tags.map((tag) => tag.id),
+          // tagIds: tags.map((tag) => tag.id),
         },
         { withCredentials: true }
       )
       .then((response) => {
-        console.log(response);
-        setRedirect("/questions/" + response.data.postId);
+        console.log(response.data);
+        setRedirect("/questions/" + response.data);
       });
   }
 
   function getTags() {
     axios.get("http://localhost:3030/tags").then((response) => {
+      console.log(response.data); // 1
       setTagSuggestions(response.data);
     });
   }
@@ -109,13 +110,21 @@ function AskPage() {
         <PreviewArea>
           <ReactMarkdown remarkPlugins={[gfm]} children={questionBody} />
         </PreviewArea>
+
         <ReactTags
           ref={reactTags}
           tags={tags}
-          suggestions={tagSuggestions}
+          suggestions={[
+            { id: 1, Name: "php" },
+            { id: 2, Name: "javascript" },
+            { id: 3, Name: "node.js" },
+            { id: 4, Name: "react.js" },
+            { id: 5, Name: "express" },
+          ]}
           onDelete={(ev) => onTagDelete(ev)}
           onAddition={(ev) => onTagAddition(ev)}
         />
+
         <BlueButton type={"submit"}>Review your question</BlueButton>
       </form>
     </Container>

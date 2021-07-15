@@ -56,10 +56,10 @@ const WhoandWhen = styled.div`
 `;
 
 const UserLink = styled.a`
-    color:#3ca4ff;
+  color: #3ca4ff;
 `;
 
-function QuestionRow({title, postId}) {
+function QuestionRow({ title, id }) {
   return (
     <StyledQuestionRow>
       <QuestionStat>
@@ -72,9 +72,9 @@ function QuestionRow({title, postId}) {
         8<span>Views</span>
       </QuestionStat>
       <QuestionTitleArea>
-        <QuestionLink to={'/questions/'+postId}>{title}</QuestionLink>
+        <QuestionLink to={"/questions/" + id}>{title}</QuestionLink>
         <WhoandWhen>
-            asked 2 mins ago <UserLink>Dawid</UserLink>
+          asked 2 mins ago <UserLink>Dawid</UserLink>
         </WhoandWhen>
         <Tag>javascript</Tag>
         <Tag>parsing</Tag>
@@ -88,10 +88,9 @@ function QuestionRow({title, postId}) {
 QuestionRow.propTypes = {
   // createdAt: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  postId: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
   // tags: PropTypes.string,
   // author: PropTypes.object,
 };
-
 
 export default QuestionRow;

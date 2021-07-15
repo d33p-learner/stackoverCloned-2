@@ -36,7 +36,9 @@ function QuestionsPage() {
       </HeaderRow>
       {questions &&
         questions.length > 0 &&
-        questions.map((question) => <QuestionRow title={question.title} postId={question.postId} />)}
+        questions.map((question) => (
+          <QuestionRow title={question.title} id={question.id} />
+        ))}
     </main>
   );
 }

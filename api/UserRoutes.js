@@ -1,31 +1,13 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
+import knex from "knex";
 import bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
+import db from "./db.js";
 
-const saltRounds = 10;
+// const saltRounds = 10;
 
 const UserRoutes = express.Router();
-
 const secret = "secret123";
-
-mongoose.connect("mongodb://localhost:27017/usersInfoDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-});
-mongoose.set("useCreateIndex", true);
-mongoose.set("useFindAndModify", false);
-
-const userSchema = new mongoose.Schema({
-  userId: String,
-  email: String,
-  password: String,
-  token: String,
-});
-
-export const User = new mongoose.model("User", userSchema);
 
 UserRoutes.get("/profile", (req, res) => {
   const token = req.cookies.token;
@@ -41,91 +23,65 @@ UserRoutes.get("/profile", (req, res) => {
 
 UserRoutes.post("/login", (req, res) => {
   const { email, password } = req.body;
-  // const isLoginOk = email === "test@example.com" && password === "test";
 
-  User.findOne({ email: email }, function (err, foundUser) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
-        const isLoggedIn = bcrypt.compareSync(
-          req.body.password,
-          foundUser.password
-        );
+  db.select("password")
+    .where({ email })
+    .from("users")
+    .first()
+    .then((user) => {
+      const isLoginOk = bcrypt.compareSync(password, user.password);
+      isLoginOk &&
+        jwt.sign(email, secret, (err, token) => {
+          if (err) {
+            res.status(403).send();
+          } else {
+            db('users').where({email}).update({token})
+            .then(() => res.cookie('token', token).send('ok'))
+            .catch(() => res.sendStatus(422));
+          }
+        });
 
-        isLoggedIn &&
-          jwt.sign(email, secret, (err, token) => {
-            if (err) {
-              res.status(403).send();
-            } else {
-              User.findOneAndUpdate(
-                { email: email },
-                { token: token },
-                (err, doc) => {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    res.cookie("token", token).send();
-                  }
-                }
-              );
-            }
-          });
-
-        if (!isLoggedIn) {
-          res.status(403).send();
-        }
+      if (!isLoginOk) {
+        res.status(403).send("Username or password mismatch");
       }
-    }
-  });
+    })
+    .catch((e) => {
+      res.status(422).send("something went wrong. Sorry");
+      console.log(e);
+    });
 });
 
 UserRoutes.post("/register", (req, res) => {
   const { email, password } = req.body;
-
-  User.findOne({ email: email }, function (err, foundUser) {
-    if (err) {
-      console.log(err);
-    } else {
-      if (!foundUser) {
-        bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-          const newUser = new User({
-            userId: uuidv4(),
-            email: req.body.email,
-            password: hash,
+  db.select("*")
+    .from("users")
+    .where({ email })
+    .then((rows) => {
+      if (rows.length === 0) {
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        db("users")
+          .insert({ email, password: hashedPassword })
+          .then(() => {
+            jwt.sign(email, secret, (err, token) => {
+              if (err) {
+                res.sendStatus(403);
+              } else {
+                res.cookie("token", token).status(201).send("User Created");
+              }
+            });
+          })
+          .catch((e) => {
+            console.log(e);
+            res.status(422).send("User creation Failed");
           });
-
-          newUser.save(function (err) {
-            if (err) {
-              console.log(err);
-            } else {
-              jwt.sign(email, secret, (err, token) => {
-                if (err) res.status(403).send();
-                else {
-                  User.findOneAndUpdate(
-                    { email: email },
-                    { token: token },
-                    (err, doc) => {
-                      if (err) {
-                        console.log(err);
-                      } else {
-                        res
-                          .cookie("token", token)
-                          .status(201)
-                          .send("User created");
-                      }
-                    }
-                  );
-                }
-              });
-            }
-          });
-        });
       } else {
-        res.status(422).send("Email already exists. Please try to login.");
+        res.status(422).send("Email already exists in our database");
       }
-    }
-  });
+    })
+    .catch((e) => {
+      console.log(e);
+      res.status(422).send(e);
+    });
 });
 
 UserRoutes.post("/logout", (req, res) => {
