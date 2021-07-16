@@ -20,17 +20,17 @@ QuestionRoutes.post("/questions", (req, res) => {
             author_id: user.id,
           })
           .then((questionId) => {
-
             const questionTags = [];
             tags.forEach((tag) => {
               questionTags.push({ question_id: questionId, tag_id: tag });
             });
+
             db("question_tags")
               .insert(questionTags)
               .then(() => res.json(questionId).sendStatus(201))
               .catch((e) => res.sendStatus(422));
           })
-          .catch((e) =>  res.sendStatus(422));
+          .catch((e) => res.sendStatus(422));
       } else {
         res.sendStatus(403);
       }
@@ -43,8 +43,13 @@ QuestionRoutes.get("/questions/:id", (req, res) => {
     .from("posts")
     .where({ id })
     .first()
-    .then((question) => {
-      res.json(question);
+    .then(question => {
+      db.select("*")
+        .from("question_tags")
+        .join("tags", "tags.id", "=", "question_tags.tag_id")
+        .then((tags) => {
+          res.json({ question, tags });
+        });
     })
     .catch(() => res.sendStatus(422));
 });
