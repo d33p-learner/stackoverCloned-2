@@ -41,15 +41,22 @@ QuestionRoutes.get("/questions/:id", (req, res) => {
   const id = req.params.id;
   db.select("*")
     .from("posts")
-    .where({ id })
+    .where({'posts.id':id })
     .first()
     .then(question => {
-      db.select("*")
-        .from("question_tags")
-        .join("tags", "tags.id", "=", "question_tags.tag_id")
-        .then((tags) => {
-          res.json({ question, tags });
-        });
+      db.select('*')
+          .from('question_tags')
+          .where({question_id:question.id})
+          .join('tags','tags.id', '=', 'question_tags.tag_id')
+          .then(tags => {
+            res.json({question, tags});
+          });
+      // db.select("*")
+      //   .from("question_tags")
+      //   .join("tags", "tags.id", "=", "question_tags.tag_id")
+      //   .then((tags) => {
+      //     res.json({ question, tags });
+      //   });
     })
     .catch(() => res.sendStatus(422));
 });
