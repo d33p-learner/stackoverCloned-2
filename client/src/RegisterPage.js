@@ -1,4 +1,4 @@
-import { Component, useContext } from "react";
+import { Component} from "react";
 import Lower_header from "./Lower_header";
 import styled from "styled-components";
 import Input from "./Input";

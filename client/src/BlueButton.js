@@ -5,8 +5,8 @@ const BlueButton = styled.button`
   color: #fff;
   border: 0;
   border-radius: 5px;
-  padding: 12px 20px;
-  font-size: 1.1rem;
+  padding: ${props => props.size === 'sm' ? '5px 7px' : '12px 20px'};
+  font-size: ${props => props.size === 'sm' ? '.8rem' : '1.1rm'};
 `;
 
 export default BlueButton;

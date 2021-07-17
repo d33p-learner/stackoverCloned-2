@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
+import UserLink from "./UserLink";
+import WhoAndWhen from "./WhoAndWhen";
 
 const QuestionStat = styled.div`
   text-align: center;
@@ -47,17 +49,6 @@ const StyledQuestionRow = styled.div`
   border-top: 1px solid #555;
 `;
 
-const WhoandWhen = styled.div`
-  display: inline-block;
-  color: #aaa;
-  font-size: 0.8rem;
-  float: right;
-  padding: 10px 0;
-`;
-
-const UserLink = styled.a`
-  color: #3ca4ff;
-`;
 
 function QuestionRow({ title, id }) {
   return (
@@ -73,9 +64,9 @@ function QuestionRow({ title, id }) {
       </QuestionStat>
       <QuestionTitleArea>
         <QuestionLink to={"/questions/" + id}>{title}</QuestionLink>
-        <WhoandWhen>
+        <WhoAndWhen>
           asked 2 mins ago <UserLink>Dawid</UserLink>
-        </WhoandWhen>
+        </WhoAndWhen>
         <Tag>javascript</Tag>
         <Tag>parsing</Tag>
         <Tag>literals</Tag>

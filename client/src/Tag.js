@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import {Link} from "react-router-dom";
 
-const StyledTag = styled.span`
+const StyledTag = styled(Link)`
   display: inline-block;
   margin-right: 5px;
   background-color: #3e4a52;
@@ -9,10 +10,16 @@ const StyledTag = styled.span`
   padding: 7px;
   border-radius: 4px;
   font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  &:hover {
+    background-color: #5e6a72;
+    color: #bce3fb;
+  }
 `;
 
-function Tag(name) {
-    return ( <StyledTag>{name}</StyledTag>);
+function Tag({ name }) {
+  return <StyledTag> {name}</StyledTag>;
 }
 
 Tag.propTypes = {
@@ -20,5 +27,3 @@ Tag.propTypes = {
 };
 
 export default Tag;
-
-

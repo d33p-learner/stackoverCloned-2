@@ -12,7 +12,6 @@ import axios from "axios";
 import ProfilePage from "./ProfilePage";
 import QuestionPage from "./QuestionPage";
 
-
 function App() {
   const [user, setUser] = useState(null);
 
@@ -21,6 +20,7 @@ function App() {
       axios
         .get("http://localhost:3030/profile", { withCredentials: true })
         .then((response) => {
+          // console.log(response.data);
           setUser({ email: response.data });
           resolve(response.data);
         })
@@ -31,16 +31,14 @@ function App() {
     });
   }
 
-  function editUser(userProps) {
-    let newUserInfo = user;
-    for (let key in userProps) {
-      newUserInfo[key] = userProps[key];
-      console.log(key, userProps[key], newUserInfo);
-    }
-    setUser(newUserInfo);
-  }
-
-
+  // function editUser(userProps) {
+  //   let newUserInfo = user;
+  //   for (let key in userProps) {
+  //     newUserInfo[key] = userProps[key];
+  //     console.log(key, userProps[key], newUserInfo);
+  //   }
+  //   setUser(newUserInfo);
+  // }
 
   useEffect(() => {
     checkAuth();
@@ -51,7 +49,7 @@ function App() {
       <Reset />
       <GlobalStyles />
       <Router>
-        <UserContext.Provider value={{ user, checkAuth, editUser }}>
+        <UserContext.Provider value={{ user, checkAuth}}>
           <Header />
           <Switch>
             <Route path="/ask" component={AskPage} />

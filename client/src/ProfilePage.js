@@ -31,7 +31,7 @@ class ProfilePage extends Component {
 
   logout() {
     axios
-      .post("http://localhost:3030/logout", {}, { withCredentials: true })
+      .post("http://localhost:3030/logout",{}, { withCredentials: true })
       .then(() => {
         this.context
           .checkAuth()
@@ -39,18 +39,18 @@ class ProfilePage extends Component {
       });
   }
 
-  update(ev) {
-    // ev.preventDefault();
-    // const data = { name: this.context.user.name };
-    // axios
-    //   .post("http://localhost:3030/profile", data, { withCredentials: true })
-    //   .then(() => this.setState({ showNotification: true }));
-  }
+  // update(ev) {
+  //   ev.preventDefault();
+  //   const data = { name: this.context.user.name };
+  //   axios
+  //     .post("http://localhost:3030/profile", data, { withCredentials: true })
+  //     .then(() => this.setState({ showNotification: true }));
+  // }
 
-  handleOnNameChange(ev) {
-    // this.setState({ username: ev.target.value });
-    // this.context.editUser({ name: ev.target.value });
-  }
+  // handleOnNameChange(ev) {
+  //   // this.setState({ username: ev.target.value });
+  //   // this.context.editUser({ name: ev.target.value });
+  // }
 
   render() {
     return (
@@ -69,14 +69,14 @@ class ProfilePage extends Component {
               if (user) {
                 return (
                   <>
-                    <form onSubmit={(ev) => this.update(ev)}>
+                    {/* <form onSubmit={(ev) => this.update(ev)}>
                       <Input
                         placeholder={"Your name"}
                         value={this.state.username}
                         onChange={(ev) => this.handleOnNameChange(ev)}
                       />
                       <BlueButton>Update profile</BlueButton>
-                    </form>
+                    </form> */}
                     <hr />
                     <BlueButton onClick={() => this.logout()}>
                       Logout

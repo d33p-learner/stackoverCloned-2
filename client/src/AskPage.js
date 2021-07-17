@@ -52,7 +52,7 @@ function AskPage() {
         {
           title: questionTitle,
           content: questionBody,
-          // tagIds: tags.map((tag) => tag.id),
+          tags: tags.map((tag) => tag.id),
         },
         { withCredentials: true }
       )
@@ -86,6 +86,10 @@ function AskPage() {
   }
 
   useEffect(() => {
+    console.log(tagSuggestions);
+  }, []);
+
+  useEffect(() => {
     getTags();
   }, []);
 
@@ -114,13 +118,7 @@ function AskPage() {
         <ReactTags
           ref={reactTags}
           tags={tags}
-          suggestions={[
-            { id: 1, Name: "php" },
-            { id: 2, Name: "javascript" },
-            { id: 3, Name: "node.js" },
-            { id: 4, Name: "react.js" },
-            { id: 5, Name: "express" },
-          ]}
+          suggestions={tagSuggestions}
           onDelete={(ev) => onTagDelete(ev)}
           onAddition={(ev) => onTagAddition(ev)}
         />

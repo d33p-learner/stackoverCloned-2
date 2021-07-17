@@ -1,5 +1,6 @@
 import express from "express";
 import db from "./db.js";
+import { getLoggedInUser } from "./UserFunctions.js";
 
 const QuestionRoutes = express.Router();
 
@@ -39,26 +40,31 @@ QuestionRoutes.post("/questions", (req, res) => {
 
 QuestionRoutes.get("/questions/:id", (req, res) => {
   const id = req.params.id;
-  db.select("*")
-    .from("posts")
-    .where({'posts.id':id })
-    .first()
-    .then(question => {
-      db.select('*')
-          .from('question_tags')
-          .where({question_id:question.id})
-          .join('tags','tags.id', '=', 'question_tags.tag_id')
-          .then(tags => {
-            res.json({question, tags});
+  getLoggedInUser(req.cookies.token).then(user => {
+    db.select(
+      "posts.*",
+      db.raw("sum(votes.vote ) as vote_sum"),
+      db.raw("users.email"),
+      db.raw('votes2.vote as user_vote')
+    )
+      .from("posts")
+      .join("users", "users.id", "=", "posts.author_id")
+      .leftJoin("votes", "posts.id", "=", "votes.post_id")
+      .leftJoin(db.raw('votes votes2 on votes2.post_id = posts.id and votes2.user_id = '+user.id))
+      .where({ "posts.id": id })
+      .groupBy("posts.id")
+      .first()
+      .then((question) => {
+        db.select("*")
+          .from("question_tags")
+          .where({ question_id: question.id })
+          .join("tags", "tags.id", "=", "question_tags.tag_id")
+          .then((tags) => {
+            res.json({ question, tags });
           });
-      // db.select("*")
-      //   .from("question_tags")
-      //   .join("tags", "tags.id", "=", "question_tags.tag_id")
-      //   .then((tags) => {
-      //     res.json({ question, tags });
-      //   });
-    })
-    .catch(() => res.sendStatus(422));
+      })
+      .catch(() => res.sendStatus(422));
+  });
 });
 
 QuestionRoutes.get("/questions", (req, res) => {
