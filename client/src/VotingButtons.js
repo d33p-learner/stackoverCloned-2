@@ -7,17 +7,17 @@ import { useState } from "react";
 const ArrowUp = styled.div`
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid ${props => props.uservote===1 ? '#f48024' : '#888'};
+  border-left: ${props => props.size === 'sm' ? '10px' : '20px'} solid transparent;
+  border-right: ${props => props.size === 'sm' ? '10px' : '20px'} solid transparent;
+  border-bottom: ${props => props.size === 'sm' ? '10px' : '20px'} solid ${props => props.uservote===1 ? '#f48024' : '#888'};
   padding: 0;
 `;
 const ArrowBottom = styled.div`
-  width: 0;
+   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid ${props => props.uservote===-1 ? '#f48024' : '#888'};
+  border-left: ${props => props.size === 'sm' ? '10px' : '20px'} solid transparent;
+  border-right: ${props => props.size === 'sm' ? '10px' : '20px'} solid transparent;
+  border-top: ${props => props.size === 'sm' ? '10px' : '20px'} solid ${props => props.uservote===-1 ? '#f48024' : '#888'};
   padding: 0;
 `;
 const ArrowButton = styled.button`
@@ -30,51 +30,59 @@ const ArrowButton = styled.button`
 `;
 const Total = styled.div`
   text-align: center;
-  width: 40px;
-  padding: 5px 0;
-  font-size: 1.4rem;
-  line-height: 1.4rem;
+  width: ${props => props.size === 'sm' ? '20px' : '40px'};
+  padding: ${props => props.size === 'sm' ? '2px 0 3px' : '7px 0 7px'};
+  font-size: ${props => props.size === 'sm' ? '.8rem' : '1.4rem'};
+  line-height: ${props => props.size === 'sm' ? '.6rem' : '1.4rem'};
   color: #888;
 `;
 
 
 
 function VotingButtons(props) {
-  const [currentTotal, setCurrentTotal] = useState(0);
-  const [currentUserVote, setCurrentUserVote] = useState(null);
+  // const [currentTotal, setCurrentTotal] = useState(0);
+  // const [currentUserVote, setCurrentUserVote] = useState(null);
 
-  function handleVoteClick(direction) {
-    if (direction === currentUserVote) {
-      setCurrentUserVote(null);
-      setCurrentTotal(direction === 1 ? total - 1 : total + 1);
-    } else {
-      setCurrentUserVote(direction);
-      setCurrentTotal(total + direction - currentUserVote);
-    }
+  // function handleVoteClick(direction) {
+  //   if (direction === currentUserVote) {
+  //     setCurrentUserVote(null);
+  //     setCurrentTotal(direction === 1 ? total - 1 : total + 1);
+  //   } else {
+  //     setCurrentUserVote(direction);
+  //     setCurrentTotal(total + direction - currentUserVote);
+  //   }
 
-    const directionName = direction === 1 ? "up" : "down";
-    axios
-      .post(
-        "http://localhost:3030/vote/" + directionName + "/" + props.postId,
-        {},
-        { withCredentials: true }
-      )
-      .then((response) => {
-        setCurrentTotal(response.data);
-      });
-  }
+  //   const directionName = direction === 1 ? "up" : "down";
+  //   axios
+  //     .post(
+  //       "http://localhost:3030/vote/" + directionName + "/" + props.postId,
+  //       {},
+  //       { withCredentials: true }
+  //     )
+  //     .then((response) => {
+  //       setCurrentTotal(response.data);
+  //     });
+  // }
 
-  const total = currentTotal || props.initialTotal || 0;
-  const userVote = currentUserVote === null ? props.initialUserVote : currentUserVote;
+  // const total = currentTotal || props.initialTotal || 0;
+  // const userVote = currentUserVote === null ? props.initialUserVote : currentUserVote;
   
   return (
     <div {...props}>
-      <ArrowButton onClick={() => handleVoteClick(1)}>
-        <ArrowUp uservote={userVote} />
+      {/* <ArrowButton  onClick={() => handleVoteClick(1)}>
+        <ArrowUp size={props.size} uservote={userVote} />
       </ArrowButton>
-      <Total>{total}</Total>
+      <Total size={props.size}>{total}</Total>
       <ArrowButton onClick={() => handleVoteClick(-1)}>
-        <ArrowBottom uservote={userVote}/>
+        <ArrowBottom size={props.size} uservote={userVote}/>
+      </ArrowButton> */}
+
+      <ArrowButton  onClick={() => props.onArrowUpClick()}>
+        <ArrowUp size={props.size} uservote={props.userVote} />
+      </ArrowButton>
+      <Total size={props.size}>{props.total}</Total>
+      <ArrowButton onClick={() => props.onArrowDownClick()}>
+        <ArrowBottom size={props.size} uservote={props.userVote}/>
       </ArrowButton>
     </div>
   );

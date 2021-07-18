@@ -38,9 +38,14 @@ const CommentsOuter = styled.div`
 `;
 
 const CommentBox = styled.div`
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  column-gap: 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 20px 0;
   font-size: 0.8rem;
+  line-height: 1rem;
+  color: #ddd;
 `;
 
 function QuestionPage({ match }) {
@@ -50,6 +55,43 @@ function QuestionPage({ match }) {
   const [voteCount, setVoteCount] = useState(0);
   const [questionComments, setQuestionComments] = useState([]);
   const [showCommentForm, setShowCommentForm] = useState(false);
+
+  function setCommentVote(commentId, userVote) {
+    let newQuestionComments = [];
+    questionComments.forEach((comment, commentIndex) => {
+      newQuestionComments.push(comment);
+
+      if (comment.id == commentId) {
+        const prevUserVote = newQuestionComments[commentIndex].user_vote;
+        if (prevUserVote === 1 && userVote === 1) {
+          newQuestionComments[commentIndex].votes_sum -= 1;
+        }
+        if (prevUserVote === 1 && userVote === -1) {
+          newQuestionComments[commentIndex].votes_sum -= 2;
+        }
+        if (prevUserVote === -1 && userVote === 1) {
+          newQuestionComments[commentIndex].votes_sum += 2;
+        }
+        if (prevUserVote === -1 && userVote === -1) {
+          newQuestionComments[commentIndex].votes_sum += 1;
+        }
+        if (prevUserVote === null) {
+          newQuestionComments[commentIndex].votes_sum -= userVote;
+        }
+        newQuestionComments[commentIndex].user_vote = prevUserVote;
+      }
+    });
+    setQuestionComments(newQuestionComments);
+  }
+
+  function updateCommentVotesSum(commentId, sum) {
+    let newComments = questionComments;
+    newComments.forEach((comment, commentIndex) => {
+      if (comment.id === commentId) {
+        newComments[commentIndex].votes_sum = sum;
+      }
+    });
+  }
 
   function getQuestion() {
     axios
@@ -72,6 +114,48 @@ function QuestionPage({ match }) {
       })
       .then((response) => {
         setQuestionComments(response.data);
+      });
+  }
+
+  function handleOnArrowUpClick(postId) {
+    if (postId === question.id) {
+      setUserVote(userVote === 1 ? 0 : 1);
+    } else {
+      setCommentVote(postId, 1);
+    }
+    axios
+      .post(
+        "http://localhost:3030/vote/up/" + postId,
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => {
+        if (postId === question.id) {
+          setVoteCount(response.data);
+        } else {
+          updateCommentVotesSum(postId, response.data);
+        }
+      });
+  }
+
+  function handleOnArrowDownClick(postId) {
+    if (postId === question.id) {
+      setUserVote(userVote === -1 ? 0 : -1);
+    } else {
+      setCommentVote(postId, -1);
+    }
+    axios
+      .post(
+        "http://localhost:3030/vote/down/" + postId,
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => {
+        if (postId === question.id) {
+          setVoteCount(response.data);
+        } else {
+          updateCommentVotesSum(postId, response.data);
+        }
       });
   }
 
@@ -106,9 +190,10 @@ function QuestionPage({ match }) {
             <PostBody>
               <VotingButtons
                 style={{ marginTop: "10px" }}
-                initialTotal={voteCount}
-                initialUserVote={userVote}
-                postId={question.id}
+                total={voteCount}
+                userVote={userVote}
+                onArrowUpClick={() => handleOnArrowUpClick(question.id)}
+                onArrowDownClick={() => handleOnArrowDownClick(question.id)}
               />
               <div>
                 <ReactMarkdown plugins={[gfm]} children={question.content} />
@@ -131,11 +216,21 @@ function QuestionPage({ match }) {
           <CommentsOuter>
             {questionComments.map((questionComment) => (
               <CommentBox>
-                {questionComment.content}
-                <WhoAndWhen style={{ padding: 0, float: "none" }}>
-                  &nbsp;—&nbsp;
-                  <UserLink>{questionComment.email}</UserLink> &nbsp;x times ago
-                </WhoAndWhen>
+                <VotingButtons
+                  size={"sm"}
+                  onArrowUpClick={() => handleOnArrowUpClick(questionComment.id)}
+                  onArrowDownClick={() => handleOnArrowDownClick(questionComment.id)}
+                  total={ questionComment.votes_sum === null ? 0 : questionComment.votes_sum }
+                  userVote={questionComment.user_vote}
+                />
+                <div>
+                  {questionComment.content}
+                  <WhoAndWhen style={{ padding: 0, float: "none" }}>
+                    &nbsp;—&nbsp;
+                    <UserLink>{questionComment.email}</UserLink> &nbsp;x times
+                    ago
+                  </WhoAndWhen>
+                </div>
               </CommentBox>
             ))}
           </CommentsOuter>
