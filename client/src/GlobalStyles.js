@@ -31,6 +31,12 @@ const GlobalStyles = createGlobalStyle`
     padding: 15px;
     border-radius: 4px;
   }
+
+  hr {
+    margin: 20px 0;
+    border-color:red;
+  }
+
   // tags
   
   .react-tags{

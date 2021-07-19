@@ -40,49 +40,41 @@ const Total = styled.div`
 
 
 function VotingButtons(props) {
-  // const [currentTotal, setCurrentTotal] = useState(0);
-  // const [currentUserVote, setCurrentUserVote] = useState(null);
+  const [currentTotal, setCurrentTotal] = useState(props.initialTotal);
+  const [currentUserVote, setCurrentUserVote] = useState(null);
 
-  // function handleVoteClick(direction) {
-  //   if (direction === currentUserVote) {
-  //     setCurrentUserVote(null);
-  //     setCurrentTotal(direction === 1 ? total - 1 : total + 1);
-  //   } else {
-  //     setCurrentUserVote(direction);
-  //     setCurrentTotal(total + direction - currentUserVote);
-  //   }
+  function handleVoteClick(direction) {
+    if (direction === currentUserVote) {
+      setCurrentUserVote(null);
+      setCurrentTotal(direction === 1 ? total - 1 : total + 1);
+    } else {
+      setCurrentUserVote(direction);
+      setCurrentTotal(total + direction - currentUserVote);
+    }
 
-  //   const directionName = direction === 1 ? "up" : "down";
-  //   axios
-  //     .post(
-  //       "http://localhost:3030/vote/" + directionName + "/" + props.postId,
-  //       {},
-  //       { withCredentials: true }
-  //     )
-  //     .then((response) => {
-  //       setCurrentTotal(response.data);
-  //     });
-  // }
+    const directionName = direction === 1 ? "up" : "down";
+    axios
+      .post(
+        "http://localhost:3030/vote/" + directionName + "/" + props.postId,
+        {},
+        { withCredentials: true }
+      )
+      .then((response) => {
+        setCurrentTotal(response.data);
+      });
+  }
 
-  // const total = currentTotal || props.initialTotal || 0;
-  // const userVote = currentUserVote === null ? props.initialUserVote : currentUserVote;
+  const total = currentTotal || props.initialTotal || 0;
+  const userVote = currentUserVote === null ? props.initialUserVote : currentUserVote;
   
   return (
     <div {...props}>
-      {/* <ArrowButton  onClick={() => handleVoteClick(1)}>
+      <ArrowButton  onClick={() => handleVoteClick(1)}>
         <ArrowUp size={props.size} uservote={userVote} />
       </ArrowButton>
       <Total size={props.size}>{total}</Total>
       <ArrowButton onClick={() => handleVoteClick(-1)}>
         <ArrowBottom size={props.size} uservote={userVote}/>
-      </ArrowButton> */}
-
-      <ArrowButton  onClick={() => props.onArrowUpClick()}>
-        <ArrowUp size={props.size} uservote={props.userVote} />
-      </ArrowButton>
-      <Total size={props.size}>{props.total}</Total>
-      <ArrowButton onClick={() => props.onArrowDownClick()}>
-        <ArrowBottom size={props.size} uservote={props.userVote}/>
       </ArrowButton>
     </div>
   );

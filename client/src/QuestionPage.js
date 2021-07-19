@@ -1,18 +1,20 @@
 import React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import Lower_header from "./Lower_header";
+import Answer_Header from "./Answer_Header";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import { Helmet } from "react-helmet";
 import WhoAndWhen from "./WhoAndWhen";
-import When from "./When";
 import UserLink from "./UserLink";
 import Tag from "./Tag";
 import VotingButtons from "./VotingButtons";
-import BlueLinkButton from "./BlueLinkButton";
-import CommentForm from "./CommentForm";
+import Comments from "./Comments";
+import BlueButton from "./BlueButton";
+import PostBodyTextArea from "./PostBodyTextArea";
+import When from "./When";
 
 const Container = styled.div`
   padding: 30px 20px;
@@ -32,66 +34,15 @@ const PostBody = styled.div`
   margin-bottom: 20px;
 `;
 
-const CommentsOuter = styled.div`
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-left: 70px;
-`;
-
-const CommentBox = styled.div`
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  column-gap: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 20px 0;
-  font-size: 0.8rem;
-  line-height: 1rem;
-  color: #ddd;
-`;
-
 function QuestionPage({ match }) {
   const [question, setQuestion] = useState(false);
   const [tags, setTags] = useState([]);
   const [userVote, setUserVote] = useState(0);
   const [voteCount, setVoteCount] = useState(0);
   const [questionComments, setQuestionComments] = useState([]);
-  const [showCommentForm, setShowCommentForm] = useState(false);
-
-  function setCommentVote(commentId, userVote) {
-    let newQuestionComments = [];
-    questionComments.forEach((comment, commentIndex) => {
-      newQuestionComments.push(comment);
-
-      if (comment.id == commentId) {
-        const prevUserVote = newQuestionComments[commentIndex].user_vote;
-        if (prevUserVote === 1 && userVote === 1) {
-          newQuestionComments[commentIndex].votes_sum -= 1;
-        }
-        if (prevUserVote === 1 && userVote === -1) {
-          newQuestionComments[commentIndex].votes_sum -= 2;
-        }
-        if (prevUserVote === -1 && userVote === 1) {
-          newQuestionComments[commentIndex].votes_sum += 2;
-        }
-        if (prevUserVote === -1 && userVote === -1) {
-          newQuestionComments[commentIndex].votes_sum += 1;
-        }
-        if (prevUserVote === null) {
-          newQuestionComments[commentIndex].votes_sum -= userVote;
-        }
-        newQuestionComments[commentIndex].user_vote = prevUserVote;
-      }
-    });
-    setQuestionComments(newQuestionComments);
-  }
-
-  function updateCommentVotesSum(commentId, sum) {
-    let newComments = questionComments;
-    newComments.forEach((comment, commentIndex) => {
-      if (comment.id === commentId) {
-        newComments[commentIndex].votes_sum = sum;
-      }
-    });
-  }
+  const [answerBody, setAnswerBody] = useState("");
+  const [answersComments, setAnswersComments] = useState([]);
+  const [answers, setAnswers] = useState([]);
 
   function getQuestion() {
     axios
@@ -107,9 +58,9 @@ function QuestionPage({ match }) {
       });
   }
 
-  function getComments() {
+  function getQuestionComments() {
     axios
-      .get("http://localhost:3030/comments/" + match.params.id, {
+      .get("http://localhost:3030/posts/comments/" + match.params.id, {
         withCredentials: true,
       })
       .then((response) => {
@@ -117,65 +68,47 @@ function QuestionPage({ match }) {
       });
   }
 
-  function handleOnArrowUpClick(postId) {
-    if (postId === question.id) {
-      setUserVote(userVote === 1 ? 0 : 1);
-    } else {
-      setCommentVote(postId, 1);
-    }
+  function getAnswersComments(answers) {
+    const ids = answers.map((answer) => answer.id).join(",");
     axios
-      .post(
-        "http://localhost:3030/vote/up/" + postId,
-        {},
-        { withCredentials: true }
-      )
+      .get("http://localhost:3030/posts/comments/" + (ids), {
+        withCredentials: true,
+      })
       .then((response) => {
-        if (postId === question.id) {
-          setVoteCount(response.data);
-        } else {
-          updateCommentVotesSum(postId, response.data);
-        }
+        setAnswersComments(response.data);
       });
   }
 
-  function handleOnArrowDownClick(postId) {
-    if (postId === question.id) {
-      setUserVote(userVote === -1 ? 0 : -1);
-    } else {
-      setCommentVote(postId, -1);
-    }
+  function getAnswers() {
     axios
-      .post(
-        "http://localhost:3030/vote/down/" + postId,
-        {},
-        { withCredentials: true }
-      )
+      .get("http://localhost:3030/posts/answers/" + match.params.id, {
+        withCredentials: true,
+      })
       .then((response) => {
-        if (postId === question.id) {
-          setVoteCount(response.data);
-        } else {
-          updateCommentVotesSum(postId, response.data);
-        }
+        setAnswers(response.data);
+        getAnswersComments(response.data);
       });
   }
 
-  function handleAddComment(content) {
+  function postAnswer(ev) {
+    ev.preventDefault();
+    const data = { postId: question.id, content: answerBody, type: "answer" };
     axios
-      .post(
-        "http://localhost:3030/comments/",
-        { content, postId: question.id },
-        { withCredentials: true }
-      )
+      .post("http://localhost:3030/posts", data, {
+        withCredentials: true,
+      })
       .then((response) => {
-        setQuestionComments(response.data);
-        setShowCommentForm(false);
+        setAnswerBody("");
+        setAnswers(response.data);
       });
   }
 
   useEffect(() => {
     getQuestion();
-    getComments();
+    getAnswers();
+    getQuestionComments();
   }, []);
+
   return (
     <>
       <Container>
@@ -190,10 +123,9 @@ function QuestionPage({ match }) {
             <PostBody>
               <VotingButtons
                 style={{ marginTop: "10px" }}
-                total={voteCount}
-                userVote={userVote}
-                onArrowUpClick={() => handleOnArrowUpClick(question.id)}
-                onArrowDownClick={() => handleOnArrowDownClick(question.id)}
+                initialTotal={voteCount}
+                initialUserVote={userVote}
+                postId={question.id}
               />
               <div>
                 <ReactMarkdown plugins={[gfm]} children={question.content} />
@@ -204,7 +136,7 @@ function QuestionPage({ match }) {
                     })}
                   </div>
                   <WhoAndWhen>
-                    x time ago <UserLink>{question.email}</UserLink>
+                  <When>{question.created_at}</When> <UserLink>{question.email}</UserLink>
                   </WhoAndWhen>
                 </QuestionMeta>
               </div>
@@ -213,45 +145,58 @@ function QuestionPage({ match }) {
         )}
 
         {questionComments && questionComments.length > 0 && (
-          <CommentsOuter>
-            {questionComments.map((questionComment) => (
-              <CommentBox>
-                <VotingButtons
-                  size={"sm"}
-                  onArrowUpClick={() => handleOnArrowUpClick(questionComment.id)}
-                  onArrowDownClick={() => handleOnArrowDownClick(questionComment.id)}
-                  total={ questionComment.votes_sum === null ? 0 : questionComment.votes_sum }
-                  userVote={questionComment.user_vote}
-                />
-                <div>
-                  {questionComment.content}
-                  <WhoAndWhen style={{ padding: 0, float: "none" }}>
-                    &nbsp;—&nbsp;
-                    <UserLink>{questionComment.email}</UserLink> &nbsp;x times
-                    ago
-                  </WhoAndWhen>
-                </div>
-              </CommentBox>
-            ))}
-          </CommentsOuter>
+          <Comments initialComments={questionComments} postId={question.id} />
         )}
 
-        {showCommentForm && (
-          <CommentsOuter>
-            <CommentForm
-              onAddCommentClick={(content) => handleAddComment(content)}
-            ></CommentForm>
-          </CommentsOuter>
-        )}
+        <hr />
+        <Answer_Header style={{ margin: "30px 0 20px" }}>Answers</Answer_Header>
 
-        {!showCommentForm && (
-          <BlueLinkButton
-            onClick={() => setShowCommentForm(true)}
-            style={{ padding: "10px 0", marginLeft: "70px" }}
-          >
-            Add comment
-          </BlueLinkButton>
-        )}
+        {answers.map((answer) => (
+          <div>
+            <PostBody>
+              <VotingButtons
+                style={{ marginTop: "10px" }}
+                initialTotal={answer.votes_sum}
+                initialUserVote={answer.user_vote}
+                postId={answer.id}
+              />
+              <div>
+                <ReactMarkdown plugins={[gfm]} children={answer.content} />
+                <WhoAndWhen style={{float:'none',width:'100%'}}>
+                  <When>{answer.created_at}</When>&nbsp;
+                  <UserLink >{answer.email}</UserLink>
+                </WhoAndWhen>
+              </div>
+              {/* <ReactMarkdown plugins={[gfm]} children={answer.content} /> */}
+            </PostBody>
+            <Comments
+              initialComments={answersComments.filter(
+                (comment) => comment.parent_id === answer.id
+              )}
+              postId={answer.id}
+            />
+          </div>
+        ))}
+
+        <hr />
+
+        <Answer_Header style={{ margin: "30px 0 20px" }}>
+          Your Answer
+        </Answer_Header>
+        <PostBodyTextArea
+          value={answerBody}
+          placeholder={"Your Answer goes here. You can use Markdown."}
+          handlePostBodyChange={(value) => {
+            setAnswerBody(value);
+          }}
+        />
+        <BlueButton
+          onClick={(ev) => {
+            postAnswer(ev);
+          }}
+        >
+          Post your answer
+        </BlueButton>
       </Container>
     </>
   );

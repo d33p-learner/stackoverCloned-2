@@ -3,37 +3,17 @@ import styled from "styled-components";
 import Lower_header from "./Lower_header";
 import BlueButton from "./BlueButton";
 import Input from "./Input";
-import ReactMarkdown from "react-markdown";
-import gfm from "remark-gfm";
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import ReactTags from "react-tag-autocomplete";
+import PostBodyTextArea from "./PostBodyTextArea";
 
 const Container = styled.div`
   padding: 30px 20px;
 `;
 
-const QuestionBodyTextarea = styled.textarea`
-  background: none;
-  border: 1px solid #777;
-  border-radius: 3px;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px;
-  min-height: 200px;
-  margin-bottom: 20px;
-  color: #fff;
-  font-family: inherit;
-`;
-
-const PreviewArea = styled.div`
-  padding: 10px 20px;
-  background: #444;
-  border-radius: 5px;
-  margin-bottom: 20px;
-`;
 
 function AskPage() {
   const reactTags = React.createRef();
@@ -106,14 +86,8 @@ function AskPage() {
           onChange={(e) => setQuestionTitle(e.target.value)}
           placeholder="Be specific and imagine you’re asking a question to another person"
         />
-        <QuestionBodyTextarea
-          value={questionBody}
-          onChange={(e) => setQuestionBody(e.target.value)}
-          placeholder="Include all the information someone would need to answer your question"
-        />
-        <PreviewArea>
-          <ReactMarkdown remarkPlugins={[gfm]} children={questionBody} />
-        </PreviewArea>
+        
+        <PostBodyTextArea placeholder={"Include all the information someone would need to answer your question"} value={questionBody} handlePostBodyChange={value => setQuestionBody(value)} />
 
         <ReactTags
           ref={reactTags}

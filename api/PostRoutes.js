@@ -1,14 +1,16 @@
 import express from "express";
-import { getPostComments } from "./CommentFunctions.js";
+import { getPostChildren } from "./PostsFunctions.js";
 import db from "./db.js";
 import { getLoggedInUser } from "./UserFunctions.js";
-const CommentRoutes = express.Router();
+const PostRoutes = express.Router();
 
-CommentRoutes.get("/comments/:postId", (req, res) => {
-  const postId = req.params.postId;
+PostRoutes.get("/posts/:type/:postIds", (req, res) => {
+  const postIds = req.params.postIds.split(",");
+  const type = req.params.type;
   const token = req.cookies.token;
+
   getLoggedInUser(token).then((user) => {
-    getPostComments(postId, user.id)
+    getPostChildren(postIds, type, user.id)
       .then((comments) => {
         res.json(comments);
       })
@@ -16,8 +18,8 @@ CommentRoutes.get("/comments/:postId", (req, res) => {
   });
 });
 
-CommentRoutes.post("/comments", (req, res) => {
-  const { content, postId } = req.body;
+PostRoutes.post("/posts", (req, res) => {
+  const { content, postId, type } = req.body;
   getLoggedInUser(req.cookies.token).then((user) => {
     db("posts")
       .insert({
@@ -25,9 +27,10 @@ CommentRoutes.post("/comments", (req, res) => {
         content,
         parent_id: postId,
         author_id: user.id,
+        type,
       })
       .then(() => {
-        getPostComments(postId)
+        getPostChildren([postId], type, user.id)
           .then((comments) => {
             res.json(comments);
           })
@@ -36,4 +39,4 @@ CommentRoutes.post("/comments", (req, res) => {
   });
 });
 
-export default CommentRoutes;
+export default PostRoutes;
