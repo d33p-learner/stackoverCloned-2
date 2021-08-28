@@ -11,11 +11,13 @@ const secret = "secret123";
 
 UserRoutes.get("/profile", (req, res) => {
   const token = req.cookies.token;
-  jwt.verify(token, secret, (err, data) => {
+  // console.log(token); // this is coming undefined means token is null
+  token && jwt.verify(token, secret, (err, data) => {
     if (err) {
       console.log(err);
       res.status(403).send();
     } else {
+      // console.log(data);
       res.json(data);
     }
   });

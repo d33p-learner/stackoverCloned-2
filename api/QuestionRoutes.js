@@ -28,8 +28,8 @@ QuestionRoutes.post("/questions", (req, res) => {
 
             db("question_tags")
               .insert(questionTags)
-              .then(() => res.json(questionId).sendStatus(201))
-              .catch((e) => res.sendStatus(422));
+              .then(() => res.json(questionId).sendStatus(201));
+              
           })
           .catch((e) => res.sendStatus(422));
       } else {
@@ -68,8 +68,9 @@ QuestionRoutes.get("/questions/:id", (req, res) => {
 });
 
 QuestionRoutes.get("/questions", (req, res) => {
-  db.select("*")
+  db.select("posts.*", "users.email")
     .from("posts")
+    .join('users','users.id','=','posts.author_id')
     .where({ parent_id: null })
     .orderBy("id", "desc")
     .then((questions) => {

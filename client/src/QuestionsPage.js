@@ -37,7 +37,12 @@ function QuestionsPage() {
       {questions &&
         questions.length > 0 &&
         questions.map((question) => (
-          <QuestionRow title={question.title} id={question.id} />
+          <QuestionRow
+            title={question.title}
+            id={question.id}
+            author={{ id: question.user_id, email: question.email }}
+            createdAt={question.created_at}
+          />
         ))}
     </main>
   );

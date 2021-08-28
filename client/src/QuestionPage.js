@@ -144,7 +144,7 @@ function QuestionPage({ match }) {
           </>
         )}
 
-        {questionComments && questionComments.length > 0 && (
+        {questionComments && (
           <Comments initialComments={questionComments} postId={question.id} />
         )}
 

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import UserLink from "./UserLink";
 import WhoAndWhen from "./WhoAndWhen";
+import When from "./When";
 
 const QuestionStat = styled.div`
   text-align: center;
@@ -49,8 +50,7 @@ const StyledQuestionRow = styled.div`
   border-top: 1px solid #555;
 `;
 
-
-function QuestionRow({ title, id }) {
+function QuestionRow({ title, id, author, createdAt }) {
   return (
     <StyledQuestionRow>
       <QuestionStat>
@@ -65,23 +65,19 @@ function QuestionRow({ title, id }) {
       <QuestionTitleArea>
         <QuestionLink to={"/questions/" + id}>{title}</QuestionLink>
         <WhoAndWhen>
-          asked 2 mins ago <UserLink>Dawid</UserLink>
+          <When>{createdAt}</When> <UserLink>{author.email}</UserLink>
         </WhoAndWhen>
-        <Tag>javascript</Tag>
-        <Tag>parsing</Tag>
-        <Tag>literals</Tag>
-        <Tag>quotes</Tag>
       </QuestionTitleArea>
     </StyledQuestionRow>
   );
 }
 
 QuestionRow.propTypes = {
-  // createdAt: PropTypes.string.isRequired,
+  createdAt: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   id: PropTypes.number.isRequired,
   // tags: PropTypes.string,
-  // author: PropTypes.object,
+  author: PropTypes.object,
 };
 
 export default QuestionRow;
